@@ -9,11 +9,32 @@ export class DiscountOffer {
 export class Store {
   constructor(discountOffers = []) {
     this.discountOffers = discountOffers;
+    this.settings = {
+      default: createSettings(),
+      Naturalia: createSettings({
+        beforeExpirationUpdateRate: 1,
+        afterExpirationUpdateRate: 2,
+      }),
+      Ilek: createSettings({ shouldUpdate: false }),
+      Vinted: createSettings({
+        beforeExpirationUpdateRate: 1,
+        before10DaysExpirationUpdateRate: 2,
+        before5DaysExpirationUpdateRate: 3,
+        shouldResetDiscountAfterExpiration: true,
+      }),
+      BackMarket: createSettings({
+        beforeExpirationUpdateRate: -2,
+        afterExpirationUpdateRate: -4,
+      }),
+    };
   }
 
   updateDiscounts() {
     this.discountOffers = this.discountOffers.map((discountOffer) => {
-      if (discountOffer.partnerName === "Ilek") {
+      const offerSettings =
+        this.settings[discountOffer.partnerName] ?? this.settings.default;
+
+      if (!offerSettings.shouldUpdate) {
         if (discountOffer.discountInPercent > 50)
           discountOffer.discountInPercent = 50;
 
@@ -23,7 +44,10 @@ export class Store {
         return discountOffer;
       }
 
-      discountOffer.discountInPercent = getDiscountInPercent(discountOffer);
+      discountOffer.discountInPercent = getDiscountInPercent(
+        discountOffer,
+        offerSettings
+      );
 
       if (discountOffer.discountInPercent > 50)
         discountOffer.discountInPercent = 50;
@@ -40,45 +64,48 @@ export class Store {
   }
 }
 
-function getDiscountInPercent(discountOffer) {
+const defaultSettings = {
+  shouldUpdate: true,
+  beforeExpirationUpdateRate: -1,
+  afterExpirationUpdateRate: -2,
+};
+
+function createSettings(overrideSettings = {}) {
+  return { ...defaultSettings, ...overrideSettings };
+}
+
+function getDiscountInPercent(discountOffer, offerSettings) {
   const isExpired = discountOffer.expiresIn <= 0;
   if (isExpired) {
-    if (discountOffer.partnerName === "Naturalia") {
-      return discountOffer.discountInPercent + 2;
-    }
-
-    if (discountOffer.partnerName === "Vinted") {
+    if (offerSettings.shouldResetDiscountAfterExpiration) {
       return 0;
     }
-
-    if (discountOffer.partnerName === "BackMarket") {
-      return discountOffer.discountInPercent - 4;
-    }
-    return discountOffer.discountInPercent - 2;
+    return (
+      discountOffer.discountInPercent + offerSettings.afterExpirationUpdateRate
+    );
   }
 
   const isExpirationInLessThan5Days = discountOffer.expiresIn < 6;
 
-  if (discountOffer.partnerName === "Vinted" && isExpirationInLessThan5Days) {
-    return discountOffer.discountInPercent + 3;
+  if (isExpirationInLessThan5Days) {
+    return (
+      discountOffer.discountInPercent +
+      (offerSettings.before5DaysExpirationUpdateRate ??
+        offerSettings.beforeExpirationUpdateRate)
+    );
   }
 
   const isExpirationInLessThan10Days = discountOffer.expiresIn < 11;
 
-  if (discountOffer.partnerName === "Vinted" && isExpirationInLessThan10Days) {
-    return discountOffer.discountInPercent + 2;
+  if (isExpirationInLessThan10Days) {
+    return (
+      discountOffer.discountInPercent +
+      (offerSettings.before10DaysExpirationUpdateRate ??
+        offerSettings.beforeExpirationUpdateRate)
+    );
   }
 
-  if (
-    discountOffer.partnerName === "Naturalia" ||
-    discountOffer.partnerName === "Vinted"
-  ) {
-    return discountOffer.discountInPercent + 1;
-  }
-
-  if (discountOffer.partnerName === "BackMarket") {
-    return discountOffer.discountInPercent - 2;
-  }
-
-  return discountOffer.discountInPercent - 1;
+  return (
+    discountOffer.discountInPercent + offerSettings.beforeExpirationUpdateRate
+  );
 }
