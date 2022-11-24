@@ -1,3 +1,5 @@
+const MAX_PARTNER_DISCOUNT = 50;
+
 export class DiscountOffer {
   constructor(partnerName, expiresIn, discountRateInPercent) {
     this.partnerName = partnerName;
@@ -6,60 +8,55 @@ export class DiscountOffer {
   }
 }
 
+function getDiscountInPercent(discountOffer) {
+  if (discountOffer.expiresIn <= 0) {
+    if (discountOffer.partnerName === "Naturalia") {
+      return discountOffer.discountInPercent + 2;
+    }
+    if (discountOffer.partnerName === "Vinted") {
+      return 0;
+    }
+    return discountOffer.discountInPercent - 2;
+  }
+
+  if (discountOffer.partnerName === "Vinted" && discountOffer.expiresIn < 6) {
+    return discountOffer.discountInPercent + 3;
+  }
+
+  if (discountOffer.partnerName === "Vinted" && discountOffer.expiresIn < 11) {
+    return discountOffer.discountInPercent + 2;
+  }
+
+  if (
+    discountOffer.partnerName === "Naturalia" ||
+    discountOffer.partnerName === "Vinted"
+  ) {
+    return discountOffer.discountInPercent + 1;
+  }
+
+  return discountOffer.discountInPercent - 1;
+}
+
 export class Store {
   constructor(discountOffers = []) {
     this.discountOffers = discountOffers;
   }
+
   updateDiscounts() {
-    for (var i = 0; i < this.discountOffers.length; i++) {
-      if (
-        this.discountOffers[i].partnerName != "Naturalia" &&
-        this.discountOffers[i].partnerName != "Vinted"
-      ) {
-        if (this.discountOffers[i].discountInPercent > 0) {
-          if (this.discountOffers[i].partnerName != "Ilek") {
-            this.discountOffers[i].discountInPercent = this.discountOffers[i].discountInPercent - 1;
-          }
-        }
-      } else {
-        if (this.discountOffers[i].discountInPercent < 50) {
-          this.discountOffers[i].discountInPercent = this.discountOffers[i].discountInPercent + 1;
-          if (this.discountOffers[i].partnerName == "Vinted") {
-            if (this.discountOffers[i].expiresIn < 11) {
-              if (this.discountOffers[i].discountInPercent < 50) {
-                this.discountOffers[i].discountInPercent = this.discountOffers[i].discountInPercent + 1;
-              }
-            }
-            if (this.discountOffers[i].expiresIn < 6) {
-              if (this.discountOffers[i].discountInPercent < 50) {
-                this.discountOffers[i].discountInPercent = this.discountOffers[i].discountInPercent + 1;
-              }
-            }
-          }
-        }
-      }
-      if (this.discountOffers[i].partnerName != "Ilek") {
-        this.discountOffers[i].expiresIn = this.discountOffers[i].expiresIn - 1;
-      }
-      if (this.discountOffers[i].expiresIn < 0) {
-        if (this.discountOffers[i].partnerName != "Naturalia") {
-          if (this.discountOffers[i].partnerName != "Vinted") {
-            if (this.discountOffers[i].discountInPercent > 0) {
-              if (this.discountOffers[i].partnerName != "Ilek") {
-                this.discountOffers[i].discountInPercent = this.discountOffers[i].discountInPercent - 1;
-              }
-            }
-          } else {
-            this.discountOffers[i].discountInPercent =
-              this.discountOffers[i].discountInPercent - this.discountOffers[i].discountInPercent;
-          }
-        } else {
-          if (this.discountOffers[i].discountInPercent < 50) {
-            this.discountOffers[i].discountInPercent = this.discountOffers[i].discountInPercent + 1;
-          }
-        }
-      }
-    }
+    this.discountOffers = this.discountOffers.map((discountOffer) => {
+      if (discountOffer.partnerName === "Ilek") return discountOffer;
+      discountOffer.discountInPercent = getDiscountInPercent(discountOffer);
+
+      if (discountOffer.discountInPercent > 50)
+        discountOffer.discountInPercent = 50;
+
+      if (discountOffer.discountInPercent < 0)
+        discountOffer.discountInPercent = 0;
+
+      discountOffer.expiresIn -= 1;
+
+      return discountOffer;
+    });
 
     return this.discountOffers;
   }
