@@ -1,5 +1,3 @@
-const MAX_PARTNER_DISCOUNT = 50;
-
 export class DiscountOffer {
   constructor(partnerName, expiresIn, discountRateInPercent) {
     this.partnerName = partnerName;
