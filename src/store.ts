@@ -1,4 +1,7 @@
 export class DiscountOffer {
+  partnerName: string;
+  expiresIn: number;
+  discountInPercent: number;
   constructor(partnerName, expiresIn, discountRateInPercent) {
     this.partnerName = partnerName;
     this.expiresIn = expiresIn;
@@ -6,8 +9,21 @@ export class DiscountOffer {
   }
 }
 
+interface Settings {
+  afterExpirationUpdateRate: number;
+  beforeExpirationUpdateRate: number;
+
+  before10DaysExpirationUpdateRate?: number;
+  before5DaysExpirationUpdateRate?: number;
+
+  shouldUpdate?: boolean;
+  shouldResetDiscountAfterExpiration?: boolean;
+}
+
 export class Store {
-  constructor(discountOffers = []) {
+  discountOffers: DiscountOffer[];
+  settings: { [company: string]: Settings };
+  constructor(discountOffers: DiscountOffer[] = []) {
     this.discountOffers = discountOffers;
     this.settings = {
       default: createSettings(),
@@ -70,11 +86,14 @@ const defaultSettings = {
   afterExpirationUpdateRate: -2,
 };
 
-function createSettings(overrideSettings = {}) {
+function createSettings(overrideSettings = {}): Settings {
   return { ...defaultSettings, ...overrideSettings };
 }
 
-function getDiscountInPercent(discountOffer, offerSettings) {
+function getDiscountInPercent(
+  discountOffer: DiscountOffer,
+  offerSettings: Settings
+) {
   const isExpired = discountOffer.expiresIn <= 0;
   if (isExpired) {
     if (offerSettings.shouldResetDiscountAfterExpiration) {
