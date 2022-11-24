@@ -2,7 +2,7 @@
   "name": "take-home-test",
   "version": "1.0.0",
   "repository": "git@github.com:inato/take-home-test.git",
-  "author": "greenly",
+  "author": "greenly, robin dehu",
   "license": "MIT",
   "private": true,
   "engines": {
@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "jest",
-    "start": "babel-node index.js"
+    "start": "babel-node src/index.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",
