@@ -2,21 +2,6 @@ import { DiscountOffer } from "../src/discountOffer";
 import { Store } from "../src/store";
 
 describe("non regression tests", () => {
-  it("should create a simple store with 1 offer", () => {
-    const discountOffers = [new DiscountOffer("Velib", 20, 30)];
-    const store = new Store(discountOffers);
-
-    const expectedResult = [
-      {
-        partnerName: "Velib",
-        expiresIn: 20,
-        discountInPercent: 30,
-      },
-    ];
-
-    expect(store.discountOffers).toEqual(expectedResult);
-  });
-
   it("should correctly apply each discount over a period of 30 days.", () => {
     const discountOffers = [
       new DiscountOffer("Velib", 20, 30),
@@ -26,7 +11,7 @@ describe("non regression tests", () => {
     ];
     const store = new Store(discountOffers);
 
-    const log = [];
+    const log: string[] = [];
 
     for (let elapsedDays = 0; elapsedDays < 30; elapsedDays++) {
       log.push(JSON.stringify(store.updateDiscounts()));
