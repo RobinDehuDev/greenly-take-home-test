@@ -1,11 +1,3 @@
-export class DiscountOffer {
-  constructor(partnerName, expiresIn, discountRateInPercent) {
-    this.partnerName = partnerName;
-    this.expiresIn = expiresIn;
-    this.discountInPercent = discountRateInPercent;
-  }
-}
-
 export class Store {
   constructor(discountOffers = []) {
     this.discountOffers = discountOffers;
