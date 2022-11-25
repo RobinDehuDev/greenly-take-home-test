@@ -11,7 +11,7 @@ const discountOffers = [
 ];
 const store = new Store(discountOffers);
 
-const log = [];
+const log: string[] = [];
 
 for (let elapsedDays = 0; elapsedDays < 30; elapsedDays++) {
   log.push(JSON.stringify(store.updateDiscounts()));

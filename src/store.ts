@@ -1,39 +1,44 @@
+import { DiscountOffer } from "./discountOffer";
+
 export class Store {
-  constructor(discountOffers = []) {
+  discountOffers: DiscountOffer[];
+
+  constructor(discountOffers: DiscountOffer[] = []) {
     this.discountOffers = discountOffers;
   }
 
-  updateDiscounts() {
+  updateDiscounts(): DiscountOffer[] {
     this.discountOffers = this.discountOffers.map((discountOffer) => {
       if (discountOffer.partnerName === "Ilek") {
-        if (discountOffer.discountInPercent > 50)
-          discountOffer.discountInPercent = 50;
-
-        if (discountOffer.discountInPercent < 0)
-          discountOffer.discountInPercent = 0;
-
-        return discountOffer;
+        return checkEdgeCases(discountOffer);
       }
 
       discountOffer.discountInPercent = getDiscountInPercent(discountOffer);
 
-      if (discountOffer.discountInPercent > 50)
-        discountOffer.discountInPercent = 50;
-
-      if (discountOffer.discountInPercent < 0)
-        discountOffer.discountInPercent = 0;
-
       discountOffer.expiresIn -= 1;
 
-      return discountOffer;
+      return checkEdgeCases(discountOffer);
     });
 
     return this.discountOffers;
   }
 }
 
-function getDiscountInPercent(discountOffer) {
+function checkEdgeCases(discountOffer: DiscountOffer) {
+  if (discountOffer.discountInPercent > 50) {
+    discountOffer.discountInPercent = 50;
+  }
+
+  if (discountOffer.discountInPercent < 0) {
+    discountOffer.discountInPercent = 0;
+  }
+
+  return discountOffer;
+}
+
+function getDiscountInPercent(discountOffer: DiscountOffer) {
   const isExpired = discountOffer.expiresIn <= 0;
+
   if (isExpired) {
     if (discountOffer.partnerName === "Naturalia") {
       return discountOffer.discountInPercent + 2;
@@ -46,6 +51,7 @@ function getDiscountInPercent(discountOffer) {
     if (discountOffer.partnerName === "BackMarket") {
       return discountOffer.discountInPercent - 4;
     }
+
     return discountOffer.discountInPercent - 2;
   }
 

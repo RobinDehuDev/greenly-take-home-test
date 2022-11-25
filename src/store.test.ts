@@ -1,6 +1,10 @@
 import { Store } from "./store";
 
-function mockDiscountOffer(partnerName, expiresIn, discountInPercent) {
+function mockDiscountOffer(
+  partnerName: string,
+  expiresIn: number,
+  discountInPercent: number
+) {
   return { partnerName, expiresIn, discountInPercent };
 }
 
