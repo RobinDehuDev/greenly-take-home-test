@@ -13,15 +13,11 @@ export class Store {
         discountOffer.partnerName
       );
 
-      if (partnerRules.shouldSkipUpdate) {
-        return undefined;
-      }
-
       discountOffer.discountInPercent = partnerRules.computeNewDiscount(
         discountOffer
       );
 
-      discountOffer.advanceADay();
+      !partnerRules.shouldSkipUpdate && discountOffer.advanceADay();
     });
 
     return this.discountOffers;

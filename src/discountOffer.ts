@@ -28,6 +28,8 @@ export class DiscountOffer {
 
   advanceADay() {
     this._expiresIn -= 1;
+
+    return this;
   }
 
   toJSON() {
