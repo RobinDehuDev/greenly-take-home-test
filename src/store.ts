@@ -1,4 +1,4 @@
-import { PartnerRules } from "./PartnerRules";
+import { PartnerRules } from "./partnerRules";
 import { DiscountOffer } from "./discountOffer";
 
 export class Store {

@@ -1,34 +1,31 @@
 import { DiscountOffer } from "./discountOffer";
+import { PartnerRules } from "./partnerRules";
 import { Store } from "./store";
 
 describe("Store", () => {
-  describe("general behavior", () => {
-    it("should create an empty discount offer list from an empty store", () => {
-      expect(new Store().updateDiscounts()).toEqual([]);
-    });
+  it("should create an empty discount offer list from an empty store", () => {
+    expect(new Store().updateDiscounts()).toEqual([]);
+  });
 
-    it("should decrease the discount and expiresIn", () => {
-      expect(
-        new Store([new DiscountOffer("test", 2, 3)]).updateDiscounts()
-      ).toEqual([new DiscountOffer("test", 1, 2)]);
-    });
+  it("should not update if partner set this rule", () => {
+    const partnerRules = new PartnerRules([
+      {
+        name: "Ilek",
+        shouldSkipUpdate: true,
+        computeNewDiscount: ({ discountInPercent }) => discountInPercent,
+      },
+    ]);
+    const offer = new DiscountOffer("Ilek", 1, 3);
+    const store = new Store([offer], partnerRules);
 
-    it("should not decrease under 0", () => {
-      expect(
-        new Store([new DiscountOffer("test", 2, 0)]).updateDiscounts()
-      ).toEqual([new DiscountOffer("test", 1, 0)]);
-    });
+    expect(store.updateDiscounts()).toEqual([new DiscountOffer("Ilek", 1, 3)]);
+  });
 
-    it("should not increase over 50", () => {
-      expect(
-        new Store([new DiscountOffer("Naturalia", 2, 50)]).updateDiscounts()
-      ).toEqual([new DiscountOffer("Naturalia", 1, 50)]);
-    });
+  it("should update discount offer normaly", () => {
+    const partnerRules = new PartnerRules([]);
+    const offer = new DiscountOffer("Test", 2, 3);
+    const store = new Store([offer], partnerRules);
 
-    it("should decrease the discount twice after expiration date", () => {
-      expect(
-        new Store([new DiscountOffer("test", 0, 3)]).updateDiscounts()
-      ).toEqual([new DiscountOffer("test", -1, 1)]);
-    });
+    expect(store.updateDiscounts()).toEqual([new DiscountOffer("Test", 1, 2)]);
   });
 });

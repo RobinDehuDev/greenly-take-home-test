@@ -29,18 +29,20 @@ type Rule = {
   computeNewDiscount: (discountOffer: DiscountOffer) => number;
 };
 
-const defaultRuleFunction = (
+function defaultRuleFunction(
   increaseRateBeforeExpired: number = -1,
   increaseRateAfterExpired: number = -2
-) => ({ expiresIn, discountInPercent }: DiscountOffer) => {
-  const isExpired = expiresIn <= 0;
+) {
+  return ({ expiresIn, discountInPercent }: DiscountOffer) => {
+    const isExpired = expiresIn <= 0;
 
-  if (isExpired) {
-    return discountInPercent + increaseRateAfterExpired;
-  }
+    if (isExpired) {
+      return discountInPercent + increaseRateAfterExpired;
+    }
 
-  return discountInPercent + increaseRateBeforeExpired;
-};
+    return discountInPercent + increaseRateBeforeExpired;
+  };
+}
 
 const defaultRulesAsObject = {
   default: {
@@ -49,11 +51,11 @@ const defaultRulesAsObject = {
   },
 };
 
-const defaultPartners = [
+const defaultPartners: Rule[] = [
   {
     name: "Ilek",
     shouldSkipUpdate: true,
-    computeNewDiscount: defaultRuleFunction(),
+    computeNewDiscount: ({ discountInPercent }) => discountInPercent,
   },
   {
     name: "Naturalia",
