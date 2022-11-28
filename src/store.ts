@@ -9,15 +9,7 @@ export class Store {
 
   updateDiscounts(): DiscountOffer[] {
     this.discountOffers.forEach((discountOffer) => {
-      const partnerRules = this.partnerRules.getPartnerRules(
-        discountOffer.partnerName
-      );
-
-      discountOffer.discountInPercent = partnerRules.computeNewDiscount(
-        discountOffer
-      );
-
-      !partnerRules.shouldSkipUpdate && discountOffer.advanceADay();
+      this.partnerRules.updateDiscountOffer(discountOffer);
     });
 
     return this.discountOffers;
