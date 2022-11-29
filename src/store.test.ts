@@ -1,5 +1,4 @@
 import { DiscountOffer } from "./discountOffer";
-import { PartnerRules } from "./partnerRules";
 import { Store } from "./store";
 
 describe("Store", () => {
@@ -8,10 +7,13 @@ describe("Store", () => {
   });
 
   it("should update discount offer normaly", () => {
-    const partnerRules = new PartnerRules([]);
     const offer = new DiscountOffer("Test", 2, 3);
-    const store = new Store([offer], partnerRules);
+    const store = new Store([offer]);
 
-    expect(store.updateDiscounts()).toEqual([new DiscountOffer("Test", 1, 2)]);
+    const updated = store.updateDiscounts();
+
+    expect(JSON.stringify(updated)).toEqual(
+      '[{"partnerName":"Test","expiresIn":1,"discountInPercent":2}]'
+    );
   });
 });
